@@ -43,4 +43,14 @@ const SNAPSHOT_CSV = `Nº Pedido,Mês Venda,Fonte,Nome Cliente,Valor Gasto,Valor
 170,Dezembro,Bel,Karla F. Cruz,"R$ 74,22","R$ 285,00","R$ 210,78","73,96%",,"R$ 147,55","R$ 63,23",
 174,Dezembro,Tráfego,Eliane,"R$ 18,30","R$ 42,00","R$ 23,70","56,43%",,"R$ 16,59","R$ 7,11"`;
 
-export const INITIAL_DATA: FinancialRecord[] = parseCSV(SNAPSHOT_CSV);
+let data: FinancialRecord[] = [];
+
+try {
+  data = parseCSV(SNAPSHOT_CSV);
+} catch (error) {
+  console.error("Critical: Failed to parse initial data.", error);
+  // Fallback to empty to prevent white screen of death
+  data = [];
+}
+
+export const INITIAL_DATA = data;

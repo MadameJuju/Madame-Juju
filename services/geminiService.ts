@@ -12,17 +12,32 @@ Se a pergunta for sobre tendências, analise as datas.
 Se a pergunta for vaga (ex: "Como estamos?"), dê um resumo executivo focado em Lucro, Margem e principais ofensores de custo ou campeões de receita.
 `;
 
+// Helper seguro para obter API Key sem quebrar o app em ambientes sem 'process'
+const getApiKey = (): string | undefined => {
+  try {
+    if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // Ignora erro de ReferenceError se process não existir
+    console.warn("Ambiente não suporta process.env ou API_KEY não definida.");
+  }
+  return undefined;
+};
+
 export const analyzeData = async (
   question: string, 
   data: FinancialRecord[], 
   metrics: DashboardMetrics
 ): Promise<string> => {
-  if (!process.env.API_KEY) {
-    return "Erro: Chave de API do Gemini não configurada.";
+  const apiKey = getApiKey();
+  
+  if (!apiKey) {
+    return "Nota: A análise de IA requer configuração da API Key. O painel continua funcional, mas o chat está indisponível no momento.";
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     
     // Create a context summary to avoid huge token usage if data is massive
     // For this app, we'll send the recent transactions and grouped categories
