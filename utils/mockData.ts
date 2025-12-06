@@ -46,10 +46,11 @@ const SNAPSHOT_CSV = `Nº Pedido,Mês Venda,Fonte,Nome Cliente,Valor Gasto,Valor
 let data: FinancialRecord[] = [];
 
 try {
+  // Wrapping in try/catch to ensure app never crashes on boot
   data = parseCSV(SNAPSHOT_CSV);
 } catch (error) {
   console.error("Critical: Failed to parse initial data.", error);
-  // Fallback to empty to prevent white screen of death
+  // Fallback to empty array to allow UI to render (white screen prevention)
   data = [];
 }
 

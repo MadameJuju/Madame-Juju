@@ -12,15 +12,16 @@ Se a pergunta for sobre tendências, analise as datas.
 Se a pergunta for vaga (ex: "Como estamos?"), dê um resumo executivo focado em Lucro, Margem e principais ofensores de custo ou campeões de receita.
 `;
 
-// Helper seguro para obter API Key sem quebrar o app em ambientes sem 'process'
+// Helper seguro para obter API Key sem quebrar o app em ambientes de navegador (Vercel/Vite)
 const getApiKey = (): string | undefined => {
   try {
+    // Verificação estrita para evitar ReferenceError: process is not defined
     if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
       return process.env.API_KEY;
     }
   } catch (e) {
-    // Ignora erro de ReferenceError se process não existir
-    console.warn("Ambiente não suporta process.env ou API_KEY não definida.");
+    // Silencia o erro para não travar a aplicação (Tela Branca)
+    console.warn("Ambiente não suporta process.env. Configure a variável de ambiente no seu host.");
   }
   return undefined;
 };
@@ -33,14 +34,11 @@ export const analyzeData = async (
   const apiKey = getApiKey();
   
   if (!apiKey) {
-    return "Nota: A análise de IA requer configuração da API Key. O painel continua funcional, mas o chat está indisponível no momento.";
+    return "⚠️ Configuração Necessária: A chave da API do Gemini não foi detectada.\n\nSe você está no Vercel, vá em 'Settings > Environment Variables' e adicione uma variável chamada 'API_KEY' com sua chave do Google AI Studio.";
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
-    
-    // Create a context summary to avoid huge token usage if data is massive
-    // For this app, we'll send the recent transactions and grouped categories
     
     // Group by category for context
     const catSummary: Record<string, number> = {};
@@ -79,6 +77,6 @@ export const analyzeData = async (
     return response.text || "Desculpe, não consegui analisar os dados no momento.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Houve um erro ao conectar com o assistente inteligente.";
+    return "Houve um erro ao conectar com o assistente inteligente. Verifique sua conexão e se a Chave de API é válida.";
   }
 };
